@@ -103,6 +103,24 @@ const Home: NextPage = () => {
           <input className='bg-white' type="submit" value="Login"/>
         </form>
       </div>
+      
+      <div className="flex flex-col space-y-2 p-5">
+        <p className="first-letter:text-7xl first-letter:hover:text-purple-400">
+          Heafsdfsadfsdafsd(Dasdf sd fas fasdf9d sd ) dfsdfds
+        </p>
+        <input type="file" className="file:cursor-pointer file:hover:text-purple-500 file:hover:bg-white file:hover:border file:transition-color file:bg-purple-400 file:border-0 file:rounded-xl file:px-5 file:text-white" />
+        <ul className='list-disc marker:text-teal-500'>
+          <li>hi</li>
+          <li>hi</li>
+          <li>hi</li>
+        </ul>
+        <details className='select-none open:text-white open:bg-indigo-400'>
+          <summary className="select-none cursor-pointer">
+            What is my fav. food.
+          </summary>
+          <span className="selection:bg-indigo-600 selection:text-white">김치</span>
+        </details>
+      </div>
 
     </div>
   );
