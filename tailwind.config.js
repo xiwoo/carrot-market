@@ -8,5 +8,5 @@ module.exports = {
   },
   // darkMode: "class",//기존 브라우저 설정을 따라가지 않는다.
   darkMode: "media",//기존 브라우저 설정을 따라간다.
-  plugins: [],
+  plugins: [require("@tailwindcss/forms")],
 }
