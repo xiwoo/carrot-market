@@ -9,7 +9,7 @@ interface LoginForm {
 
 
 export default function Forms() {
-  const { register, watch, handleSubmit } = useForm<LoginForm>();
+  const { register, watch, handleSubmit, formState: { errors } } = useForm<LoginForm>();
   // console.log(watch());
   const onValid = (data: LoginForm) => {
     console.log("im valid bby", data);
@@ -31,10 +31,11 @@ export default function Forms() {
         type="text"
       />
       <input  
-        {...register("email", { required: true })}
+        {...register("email", { required: "email required", validate: { notGamil: (value) => !value.includes("gmail.com") || "Gamil not allowed" }})}
         placeholder="email" 
         type="email" 
       />
+      {errors.email?.message}
       <input  
         {...register("password", { required: true })}
         placeholder="password" 
