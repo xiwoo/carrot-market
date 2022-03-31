@@ -1,25 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import client from "../../../libs/client";
+import withHandler from "../../../libs/server/withHandler";
 
-export default async function handler(
-  req: NextApiRequest, 
-  res: NextApiResponse,
-) {
-
-//   await client.user.create({
-//     data: {
-//       email: "***@gmail.com",
-//       name: "히히",
-//     }
-//   });
-
-
-//   res.json({
-//     ok: true, data: "",
-//   });
-  if(req.method !== "POST") {
-    res.status(401).end();
-  }
-  console.log(req.body.email);
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log(req.body);
   res.status(200).end();
 }
+
+export default withHandler("POST", handler);

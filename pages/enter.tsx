@@ -3,7 +3,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Button from "../components/button";
 import Input from "../components/input";
-import { cls } from "../libs/utils";
+import useMutation from "../libs/client/useMutation";
+import { cls } from "../libs/client/utils";
 
 interface EnterForm {
   email?: string;
@@ -12,6 +13,8 @@ interface EnterForm {
 
 
 const Enter: NextPage = () => {
+  const [enter, {loading, data, error}] = useMutation("/api/users/enter");
+
   const { register, handleSubmit, reset } = useForm<EnterForm>();
   const [submitting, setSubmitting] = useState(false);
   const [method, setMethod] = useState<"email" | "phone">("email");
@@ -23,17 +26,11 @@ const Enter: NextPage = () => {
     reset();
     setMethod("phone");
   };
-  const onValid = (data: EnterForm) => {
-    setSubmitting(true);
-    fetch(
-      "/api/users/enter",
-      { 
-        method: "POST", 
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      },
-    ).then(() => setSubmitting(true));
-  }
+  const onValid = (validForm: EnterForm) => {
+    // setSubmitting(true);
+    enter(validForm);
+  };
+  console.log(loading, data, error);
 
   return (
     <div className="mt-16 px-4">
