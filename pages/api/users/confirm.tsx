@@ -14,7 +14,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
       include: {user: true}
     }
   );
-
+  console.log(foundToken);
   if(!foundToken) return res.status(404).end();
 
   req.session.user = { id: foundToken.userId, };
@@ -29,4 +29,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
   res.json({ok: true});
 }
 
-export default withApiSession(withHandler("POST", handler));
+export default withApiSession(withHandler({
+  method: "POST", 
+  handler, 
+  isPrivate: false
+}));
