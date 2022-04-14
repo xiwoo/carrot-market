@@ -11,22 +11,33 @@ declare module "iron-session" {
   }
 }
 
-async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) {
-
-  const profile = await client.user.findUnique({
+async function handler(
+  req: NextApiRequest, 
+  res: NextApiResponse<ResponseType>
+) {
+  const { id } = req.query;
+  const product = await client.product.findUnique({
     where: {
-      id: req.session.user?.id
+      id: +id.toString(),
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        }
+      },
     }
   });
 
-  
   res.json({
     ok: true,
-    profile
+    product
   });
 }
 
 export default withApiSession(withHandler({
-  method: "GET", 
+  methods: ["GET"], 
   handler,
 }));
