@@ -1,15 +1,37 @@
+import useMutation from "@libs/client/useMutation";
+import { cls } from "@libs/client/utils";
+import { Product, User } from "@prisma/client";
 import type { NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import Button from "../../components/button";
+
+interface ProductWithUser extends Product {
+  user: User;
+}
+
+interface ItemDetailResponse {
+  ok: boolean,
+  product: ProductWithUser;
+  isLiked: boolean;
+  relatedProducts: Product[];
+}
 
 const ItemDetail: NextPage = () => {
 
   const router = useRouter();
-  console.log(router.query);
-  const {data} = useSWR(router.query.id ? `/products/${router.query.id}` : null);
-  console.log(data);
+  const { mutate } = useSWRConfig();
+  const { data, mutate:boundMutate, } = useSWR<ItemDetailResponse>(router.query.id ? `/products/${router.query.id}` : null);
+  const [ toggleFav ] = useMutation(`/api/products/${router.query.id}/fav`);
+  const onFavClick = () => {
+    if(!data) return;
+    // boundMutate({ ...data, isLiked: !data.isLiked }, false);
+    boundMutate(prev => {
+      console.log(prev);
+      return prev && { ...prev, isLiked: !prev.isLiked }
+    }, false);
+  }; 
   
   return (
     <div className="px-4  py-4">
@@ -40,22 +62,42 @@ const ItemDetail: NextPage = () => {
           </p>
           <div className="flex items-center justify-between space-x-2">
             <Button large text="Talk to seller" />
-            <button className="p-3 rounded-md flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-500">
-              <svg
-                className="h-6 w-6 "
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
+            <button 
+              onClick={onFavClick}
+              className={cls(
+                "p-3 rounded-md flex items-center justify-center",
+                data?.isLiked ? "text-red-400 hover:bg-red-100 hover:text-red-500": "text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+              )}
+            >
+              {data?.isLiked ? 
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-5 w-5" 
+                  viewBox="0 0 20 20" 
+                  fill="currentColor"
+                >
+                  <path 
+                    fillRule="evenodd" 
+                    d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" 
+                    clipRule="evenodd" 
+                  />
+                </svg> :
+                <svg
+                  className="h-6 w-6 "
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              }
             </button>
           </div>
         </div>
@@ -63,11 +105,11 @@ const ItemDetail: NextPage = () => {
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Similar items</h2>
         <div className="mt-6 grid grid-col-2 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((_, i) => (
-            <div key={i}>
+          {data?.relatedProducts.map(product => (
+            <div key={product.id}>
               <div className="h-56 w-full mb-4 bg-slate-300"/>
-              <h3 className="text-gray-700 -mb-1">Galaxy S60</h3>
-              <p className="text-xs font-medium text-gray-900">$6</p>
+              <h3 className="text-gray-700 -mb-1">{product.name}</h3>
+              <p className="text-xs font-medium text-gray-900">${product.price}</p>
             </div>
           ))}
         </div>
