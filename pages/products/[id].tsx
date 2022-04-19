@@ -5,7 +5,7 @@ import type { NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useSWR, { useSWRConfig } from "swr";
-import Button from "../../components/button";
+import Button from "@components/button";
 
 interface ProductWithUser extends Product {
   user: User;
