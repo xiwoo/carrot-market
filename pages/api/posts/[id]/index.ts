@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import withHandler, { ResponseType } from "@libs/server/withHandler";
 import client from "@libs/server/client";
 import { withApiSession } from "@libs/server/withSession";
+import { userInfo } from "os";
 
 declare module "iron-session" {
   interface IronSessionData {
@@ -18,6 +19,7 @@ async function handler(
   
   const { 
     query: { id, },
+    session: { user, }
   } = req;
 
   const post = await client.post.findUnique({
@@ -54,9 +56,19 @@ async function handler(
     },
   });
 
+  const isWondering = Boolean(await client.wondering.findFirst({
+    where: {
+      postId: +id.toString(),
+      userId: user?.id,
+    },
+    select: {
+      id: true,
+    },
+  }));
+
   res.json({
     ok: true,
-    post,
+    post, isWondering
   });
 
 }
