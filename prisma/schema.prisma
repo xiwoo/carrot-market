@@ -26,6 +26,10 @@ model User {
   posts Post[]
   answers Answer[]
   wonderings Wondering[]
+  writtenReviews Review[] @relation(name: "writtenReviews")
+  receivedReviews Review[] @relation(name: "receivedReviews")
+  sales Sale[]
+  purchases Purchase[]
 }
 
 model Token {
@@ -48,6 +52,8 @@ model Product {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
   favs Fav[]
+  sales Sale[]
+  purchases Purchase[]
 }
 
 model Fav {
@@ -67,6 +73,8 @@ model Post {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
   question String @db.MediumText
+  latitude Float?
+  longitude Float?
   answers Answer[]
   wonderings Wondering[]
 }
@@ -90,4 +98,35 @@ model Wondering {
   userId Int
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  review String @db.MediumText
+  createdBy User @relation(name: "writtenReviews", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById Int
+  createdFor User @relation(name: "receivedReviews", fields: [createdFroId], references: [id], onDelete: Cascade)
+  createdFroId Int
+}
+
+model Sale {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+}
+
+model Purchase {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
 }
