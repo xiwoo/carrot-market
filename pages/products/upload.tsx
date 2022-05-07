@@ -36,7 +36,7 @@ const Upload: NextPage = () => {
       router.push(`/products/${data.product.id}`);
     }
 
-  }, [data]);
+  }, [data, router]);
 
   return (
 		<Layout canGoBack title="Upload Product">

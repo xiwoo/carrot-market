@@ -20,9 +20,7 @@ interface ProductResponse {
 const Home: NextPage = () => {
 
   const user = useUser();
-  console.log(user);
   const {data} = useSWR<ProductResponse>("/products");
-  data?.products?.map((p, i) => console.log(p));
 
   return (
     <Layout title="홈" hasTabBar>

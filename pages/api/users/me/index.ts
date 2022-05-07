@@ -8,20 +8,113 @@ async function handler(
   res: NextApiResponse<ResponseType>
 ) {
 
-  const profile = await client.user.findUnique({
-    where: {
-      id: req.session.user?.id
-    }
-  });
+  req.method
 
+  const {
+    method,
+    session: { user }
+  } = req;
+
+  if(method === "GET") {
+    const profile = await client.user.findUnique({
+      where: {
+        id: user?.id
+      }
+    });
   
-  res.json({
-    ok: true,
-    profile
-  });
+    res.json({
+      ok: true,
+      profile
+    });
+  }
+
+  if(method === "POST") {
+
+    const { body: {name, email, phone} } = req;
+
+    const currentUser = await client.user.findUnique({
+      select: {
+        name: true, email: true, phone: true,
+      },
+      where: {
+        id: user?.id,
+      },
+    });
+
+    //name check
+    if(name) {
+      await client.user.update({
+        where: {
+          id: user?.id,
+        },
+        data: {
+          name,
+        },
+      });
+    }
+
+    //email check
+    if(email && email !== currentUser?.email) {
+      const alreadyExists = Boolean(await client.user.findUnique({
+        select: {
+          id: true,
+        },
+        where: {
+          email
+        },
+      }));
+
+      if(alreadyExists) {
+        return res.json({
+          ok: false,
+          error: "Email already taken."
+        })
+      }
+
+      await client.user.update({
+        where: {
+          id: user?.id,
+        },
+        data: {
+          email,
+        },
+      });
+    }
+
+    //phone check
+    if(phone && phone !== currentUser?.phone) {
+      const alreadyExists = Boolean(await client.user.findUnique({
+        select: {
+          id: true,
+        },
+        where: {
+          phone
+        },
+      }));
+
+      if(alreadyExists) {
+        return res.json({
+          ok: false,
+          error: "Phone already in use."
+        })
+      }
+
+      await client.user.update({
+        where: {
+          id: user?.id,
+        },
+        data: {
+          phone,
+        },
+      });
+    }
+    
+    res.json({ok: true, });
+  }
+
 }
 
 export default withApiSession(withHandler({
-  methods: ["GET"], 
+  methods: ["GET", "POST"], 
   handler,
 }));

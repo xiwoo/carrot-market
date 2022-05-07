@@ -14,7 +14,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
       include: {user: true}
     }
   );
-  console.log(foundToken);
+  
   if(!foundToken) return res.status(404).end();
 
   req.session.user = { id: foundToken.userId, };
