@@ -14,13 +14,22 @@ if(process.env.NODE_ENV === "development") {
   global.client = client;
 }
 
+testConnection();
+
+
 //client connection check
-try {
-  const r = client.$connect();
-  console.log("r: ", r);
-} catch(e) {
-  if(e instanceof PrismaClientValidationError) {
-    console.log(e);
+async function testConnection() {
+
+  try {
+    const r = await client.$connect();
+    console.log("connect r:: ", r);
+  } catch(e) {
+    if(e instanceof PrismaClientValidationError) {
+      console.log(e);
+    }
+  } finally {
+    const r = await client.$disconnect();
+    console.log("disconnect r:: " + r);
   }
 }
 
