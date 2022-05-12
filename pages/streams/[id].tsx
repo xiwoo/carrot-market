@@ -1,21 +1,48 @@
-import { Stream } from "@prisma/client";
+import { Message as TypeMessage, Stream, User } from "@prisma/client";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 import Layout from "@components/layout";
 import Message from "@components/message";
+import useUser from "@libs/client/useUser";
+import { useForm } from "react-hook-form";
+import useMutation from "@libs/client/useMutation";
+
+interface MessageWithUser extends TypeMessage {
+  user: User;
+}
+
+interface StreamWithMessage extends Stream {
+  messages: MessageWithUser[];
+}
 
 interface StreamResponse {
   ok: boolean;
-  stream: Stream
+  stream: StreamWithMessage
+}
+
+interface MessageResponse {
+  ok: boolean;
+}
+
+interface MessageForm {
+  message: string;
 }
 
 const Stream: NextPage = () => {
 
   const router = useRouter();
-  
+  const { register, handleSubmit, reset } = useForm<MessageForm>();
+  const { user, } = useUser();
   const { data, } = useSWR<StreamResponse>(router.query.id ? `/streams/${router.query.id}` : null);
-
+  const [ sendMessage, { loading, data:sendMessageData }] = useMutation<MessageResponse>(`/api/streams/${router.query.id}/message`);
+  
+  const onValid = (form:MessageForm) => {
+    if(loading) return;
+    reset();
+    sendMessage(form);
+  };
+  console.log(data);
 
   return (
     <Layout canGoBack>
@@ -33,22 +60,23 @@ const Stream: NextPage = () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Live Chat</h2>
           <div className="py-10 pb-16 h-[50vh] overflow-y-scroll  px-4 space-y-4">
-            <Message message="Hi how much are you selling them for?" />
-            <Message message="I want ￦20,000" reversed />
-            <Message message="미쳤어" />
+            {data?.stream?.messages?.map(message => 
+              <Message message={message.message} reversed={user?.id === message.user.id}/>
+            )}
           </div>
           <div className="fixed py-2 bg-white  bottom-0 inset-x-0">
-            <div className="flex relative max-w-md items-center  w-full mx-auto">
+            <form onSubmit={handleSubmit(onValid)} className="flex relative max-w-md items-center  w-full mx-auto">
               <input
                 type="text"
                 className="shadow-sm rounded-full w-full border-gray-300 focus:ring-orange-500 focus:outline-none pr-12 focus:border-orange-500"
+                {...register("message", { required: true })}
               />
               <div className="absolute inset-y-0 flex py-1.5 pr-1.5 right-0">
                 <button className="flex focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 items-center bg-orange-500 rounded-full px-3 hover:bg-orange-600 text-sm text-white">
                   &rarr;
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

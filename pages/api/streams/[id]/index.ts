@@ -14,19 +14,43 @@ async function handler(
   } = req;
 
   if(req.method === "GET") {
-
     console.log(id);
-
+    try {
+      
     const stream = await client.stream.findUnique({
       where: {
         id: +id.toString(),
+      },
+      include: {
+        messages: {
+          // select: {
+          //   id: true,
+          //   message: true,
+          //   createdAt: true,
+          // },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+              }
+            },
+          },
+        }
       }
     });
 
+    console.log(stream);
+    
     res.json({
       ok: true,
       stream,
-    })
+    });
+
+  } catch(e) {
+    console.error(e);
+  }
+
   }
   
   if(req.method === "POST") {
