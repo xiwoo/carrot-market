@@ -14,42 +14,36 @@ async function handler(
   } = req;
 
   if(req.method === "GET") {
-    console.log(id);
+    
     try {
       
-    const stream = await client.stream.findUnique({
-      where: {
-        id: +id.toString(),
-      },
-      include: {
-        messages: {
-          // select: {
-          //   id: true,
-          //   message: true,
-          //   createdAt: true,
-          // },
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-              }
+      const stream = await client.stream.findUnique({
+        where: {
+          id: +id.toString(),
+        },
+        include: {
+          messages: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  avatar: true,
+                }
+              },
             },
-          },
+          }
         }
-      }
-    });
+      });
+      
+      res.json({
+        ok: true,
+        stream,
+      });
 
-    console.log(stream);
-    
-    res.json({
-      ok: true,
-      stream,
-    });
-
-  } catch(e) {
-    console.error(e);
-  }
+    } catch(e) {
+      console.error(e);
+    }
 
   }
   

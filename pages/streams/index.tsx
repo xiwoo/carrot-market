@@ -2,8 +2,10 @@ import type { NextPage } from "next";
 import Link from "next/link";
 import FloatingButton from "@components/floating-button";
 import Layout from "@components/layout";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
+import useSWRInfinite from "swr/infinite";
 import { Stream } from "@prisma/client";
+import { useEffect, useState } from "react";
 
 interface StreamsResponse {
   ok: boolean;
@@ -12,12 +14,48 @@ interface StreamsResponse {
 
 const Streams: NextPage = () => {
 
-  const {data} = useSWR<StreamsResponse>(`/streams`);
+  // const [page, setPage] = useState(1);
+  // const [streams, setStreams] = useState<Stream[]>([]);
+  // const [loading, setLoading] = useState(false);
+  // const {data, mutate, isValidating} = useSWR<StreamsResponse>(`/streams?page=${page}`);
+  
+  const { data, size, setSize, isValidating } = useSWRInfinite<StreamsResponse>(
+    pageIndex => `/streams?page=${pageIndex+1}`, null,
+    // {persistSize: true}
+  );
+
+  const SCROLL_GAP = 50;
+  // console.log(isValidating, size);
+
+  const scrollPagingHandler = async (e:Event) => {
+    e.preventDefault();
+    // console.log("?");
+    const currentScroll = window.scrollY + (document.scrollingElement?.clientHeight || 0);
+    if(isValidating && currentScroll >= document.body.scrollHeight - SCROLL_GAP) {
+    //   setLoading(true);
+    //   setPage(page + 1);
+    //   setStreams([
+    //     ...streams,
+    //     ...data?.streams || []
+    //   ])
+      await setSize(size+1);
+    }
+    
+  }
+
+  useEffect(
+    () => {
+      // setStreams(data?.streams || []);
+      window.addEventListener("scroll", scrollPagingHandler, true);
+      return () => window.removeEventListener("scroll", scrollPagingHandler);
+    },
+    [size, isValidating, ]
+  );
 
   return (
     <Layout hasTabBar title="라이브">
-      <div className=" divide-y-[1px] space-y-4">
-        {data?.streams?.map((stream, i) => (
+      <div id="body" className=" divide-y-[1px] space-y-4">
+        {data?.map(res => res.streams?.map((stream, i) => (
             <Link key={stream.id} href={`/streams/${stream.id}`}>
               <a className="pt-4 block  px-4">
                 <div className="w-full rounded-md shadow-sm bg-slate-300 aspect-video" />
@@ -26,7 +64,17 @@ const Streams: NextPage = () => {
                 </h1>
               </a>
             </Link>
-        ))}
+        )))}
+        {/* {streams.map(stream => (
+          <Link key={stream.id} href={`/streams/${stream.id}`}>
+            <a className="pt-4 block  px-4">
+              <div className="w-full rounded-md shadow-sm bg-slate-300 aspect-video" />
+              <h1 className="text-2xl mt-2 font-bold text-gray-900">
+                {stream.name}
+              </h1>
+            </a>
+          </Link>
+        ))} */}
 
         <FloatingButton href="/streams/create">
           <svg 

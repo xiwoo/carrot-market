@@ -7,15 +7,19 @@ async function handler(
   req: NextApiRequest, 
   res: NextApiResponse<ResponseType>
 ) {
+
+  const streamPaging = 10;
   
   const {
     session: { user, },
+    query: { page, }
   } = req;
-
+  
   if(req.method === "GET") {
-
+    console.log("get many");
     const streams = await client.stream.findMany({
-
+      take: streamPaging,
+      skip: (+page.toString() - 1) * streamPaging,
     });
 
     res.json({

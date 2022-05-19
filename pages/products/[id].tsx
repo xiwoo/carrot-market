@@ -28,7 +28,6 @@ const ItemDetail: NextPage = () => {
     if(!data) return;
     // boundMutate({ ...data, isLiked: !data.isLiked }, false);
     boundMutate(prev => {
-      console.log(prev);
       return prev && { ...prev, isLiked: !prev.isLiked }
     }, false);
   }; 

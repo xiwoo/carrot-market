@@ -7,6 +7,7 @@ import Message from "@components/message";
 import useUser from "@libs/client/useUser";
 import { useForm } from "react-hook-form";
 import useMutation from "@libs/client/useMutation";
+import { useEffect } from "react";
 
 interface MessageWithUser extends TypeMessage {
   user: User;
@@ -29,19 +30,51 @@ interface MessageForm {
   message: string;
 }
 
-const Stream: NextPage = () => {
+const Streams: NextPage = () => {
 
   const router = useRouter();
   const { register, handleSubmit, reset } = useForm<MessageForm>();
   const { user, } = useUser();
-  const { data, } = useSWR<StreamResponse>(router.query.id ? `/streams/${router.query.id}` : null);
+  const { data, mutate } = useSWR<StreamResponse>(
+    router.query.id ? `/streams/${router.query.id}` : null,
+    { refreshInterval: 1000, }
+  );
   const [ sendMessage, { loading, data:sendMessageData }] = useMutation<MessageResponse>(`/api/streams/${router.query.id}/message`);
   
   const onValid = (form:MessageForm) => {
     if(loading) return;
     reset();
+
+    mutate(
+      prev => prev && {
+        ...prev, 
+        stream: {
+          ...prev.stream,
+          messages: [
+            ...prev.stream.messages,
+            {
+              id: new Date().getTime,
+              message: form.message, 
+              user: {
+                ...user,
+              }
+            }
+          ]
+        },
+      } as any,
+      false
+    );
     sendMessage(form);
   };
+
+  // useEffect(
+  //   () => {
+  //     if(sendMessageData && sendMessageData.ok) {
+  //     }
+  //   },
+  //   // [sendMessageData, mutate]
+  // );
+
   console.log(data);
 
   return (
@@ -61,7 +94,10 @@ const Stream: NextPage = () => {
           <h2 className="text-2xl font-bold text-gray-900">Live Chat</h2>
           <div className="py-10 pb-16 h-[50vh] overflow-y-scroll  px-4 space-y-4">
             {data?.stream?.messages?.map(message => 
-              <Message message={message.message} reversed={user?.id === message.user.id}/>
+              <Message 
+                message={message.message} 
+                reversed={user?.id === message.user.id}
+              />
             )}
           </div>
           <div className="fixed py-2 bg-white  bottom-0 inset-x-0">
@@ -84,4 +120,4 @@ const Stream: NextPage = () => {
   )
 }
 
-export default Stream;
+export default Streams;

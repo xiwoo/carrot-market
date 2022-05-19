@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import withHandler, { ResponseType } from "@libs/server/withHandler";
 import client from "@libs/server/client";
 import { withApiSession } from "@libs/server/withSession";
-import me from "pages/api/users/me";
 
 async function handler(
   req: NextApiRequest, 
