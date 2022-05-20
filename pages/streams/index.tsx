@@ -16,22 +16,28 @@ const Streams: NextPage = () => {
 
   // const [page, setPage] = useState(1);
   // const [streams, setStreams] = useState<Stream[]>([]);
-  // const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   // const {data, mutate, isValidating} = useSWR<StreamsResponse>(`/streams?page=${page}`);
-  
+  const fetcher = (url:string) => {
+    setLoading(true);
+    return fetch(`/api/${url}`).then(res => res.json()).finally(() => setLoading(false));
+  }
   const { data, size, setSize, isValidating } = useSWRInfinite<StreamsResponse>(
-    pageIndex => `/streams?page=${pageIndex+1}`, null,
-    // {persistSize: true}
+    pageIndex => `/streams?page=${pageIndex+1}`, 
+    !loading ? fetcher: null,
+    // {revalidateOnFocus}
   );
-
+  console.log(data);
   const SCROLL_GAP = 50;
   // console.log(isValidating, size);
+  // console.log(isValidating, data);
 
   const scrollPagingHandler = async (e:Event) => {
     e.preventDefault();
-    // console.log("?");
+    // console.log(loading, size);
     const currentScroll = window.scrollY + (document.scrollingElement?.clientHeight || 0);
-    if(isValidating && currentScroll >= document.body.scrollHeight - SCROLL_GAP) {
+    if(!loading && currentScroll >= document.body.scrollHeight - SCROLL_GAP) {
+      console.log("======change size::"+size);
     //   setLoading(true);
     //   setPage(page + 1);
     //   setStreams([
@@ -49,7 +55,7 @@ const Streams: NextPage = () => {
       window.addEventListener("scroll", scrollPagingHandler, true);
       return () => window.removeEventListener("scroll", scrollPagingHandler);
     },
-    [size, isValidating, ]
+    // [size, isValidating, ]
   );
 
   return (
