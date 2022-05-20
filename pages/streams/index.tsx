@@ -13,7 +13,7 @@ interface StreamsResponse {
 }
 
 const Streams: NextPage = () => {
-
+  
   // const [page, setPage] = useState(1);
   // const [streams, setStreams] = useState<Stream[]>([]);
   const [loading, setLoading] = useState(false);
@@ -49,7 +49,7 @@ const Streams: NextPage = () => {
     
   }
 
-  
+
 
   useEffect(
     () => {
