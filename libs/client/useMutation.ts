@@ -9,9 +9,11 @@ interface UseMutationState<T> {
 type UseMutationResult<T> = [(data:any) => void, UseMutationState<T>];
 
 export default function useMutation<T = any>(url: string): UseMutationResult<T> {
+  
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<undefined|any>(undefined);
   const [error, setError] = useState<undefined|any>(undefined);
+
   function mutation(data: any) {
     setLoading(true);
     fetch(url, {
@@ -25,7 +27,7 @@ export default function useMutation<T = any>(url: string): UseMutationResult<T> 
       .then(setData)
       .catch(setError)
       .finally(() => setLoading(false))
-
   }
+
   return [mutation, {loading, data, error}];
 } 

@@ -2,8 +2,8 @@ import type { NextPage } from "next";
 import Link from "next/link";
 import FloatingButton from "@components/floating-button";
 import Layout from "@components/layout";
-import useSWR, { mutate } from "swr";
-import useSWRInfinite from "swr/infinite";
+import useSWR from "swr";
+// import useSWRInfinite from "swr/infinite";
 import { Stream } from "@prisma/client";
 import { useEffect, useState } from "react";
 
@@ -13,66 +13,61 @@ interface StreamsResponse {
 }
 
 const Streams: NextPage = () => {
-
-  // const [page, setPage] = useState(1);
-  // const [streams, setStreams] = useState<Stream[]>([]);
+  
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  // const {data, mutate, isValidating} = useSWR<StreamsResponse>(`/streams?page=${page}`);
+  const [streams, setStreams] = useState<Stream[]>([]);
+  
   const fetcher = (url:string) => {
     setLoading(true);
-    return fetch(`/api/${url}`).then(res => res.json()).finally(() => setLoading(false));
+    return fetch(`/api/${url}`)
+      .then(res => res.json())
+      .finally(() => setLoading(false));
   }
-  const { data, size, setSize, isValidating } = useSWRInfinite<StreamsResponse>(
-    pageIndex => `/streams?page=${pageIndex+1}`, 
-    !loading ? fetcher: null,
-    // {revalidateOnFocus}
+  const { data, } = useSWR<StreamsResponse>(
+    !loading ? `/streams?page=${page}` : null, 
+    fetcher,
+    {//포커싱, 재연결 시에 재연결하여 가져오게 되면 중복 page에 대해 조회하게 됨 -> 현재 page state에 대해 호출되기 때문에
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
+    },
   );
-  console.log(data);
-  const SCROLL_GAP = 50;
-  // console.log(isValidating, size);
-  // console.log(isValidating, data);
 
-  const scrollPagingHandler = async (e:Event) => {
+
+  const scrollPagingHandler = (e:Event) => {
     e.preventDefault();
-    // console.log(loading, size);
+
+    const SCROLL_GAP = 50;
     const currentScroll = window.scrollY + (document.scrollingElement?.clientHeight || 0);
-    if(!loading && currentScroll >= document.body.scrollHeight - SCROLL_GAP) {
-      console.log("======change size::"+size);
-    //   setLoading(true);
-    //   setPage(page + 1);
-    //   setStreams([
-    //     ...streams,
-    //     ...data?.streams || []
-    //   ])
-      await setSize(size+1);
+    const scrollChk = currentScroll >= document.body.scrollHeight - SCROLL_GAP;
+
+    if(!loading && data && scrollChk) {
+      setPage(page + 1);
     }
-    
   }
 
   useEffect(
     () => {
-      // setStreams(data?.streams || []);
       window.addEventListener("scroll", scrollPagingHandler, true);
       return () => window.removeEventListener("scroll", scrollPagingHandler);
     },
-    // [size, isValidating, ]
+  );
+
+  useEffect(
+    () => {
+      if(data && data.ok) {
+        setStreams([...streams, ...data.streams]);
+      }
+    },
+    [data]
   );
 
   return (
     <Layout hasTabBar title="라이브">
       <div id="body" className=" divide-y-[1px] space-y-4">
-        {data?.map(res => res.streams?.map((stream, i) => (
-            <Link key={stream.id} href={`/streams/${stream.id}`}>
-              <a className="pt-4 block  px-4">
-                <div className="w-full rounded-md shadow-sm bg-slate-300 aspect-video" />
-                <h1 className="text-2xl mt-2 font-bold text-gray-900">
-                  {stream.name}
-                </h1>
-              </a>
-            </Link>
-        )))}
-        {/* {streams.map(stream => (
-          <Link key={stream.id} href={`/streams/${stream.id}`}>
+        {streams.map((stream, i) => (
+          <Link key={i} href={`/streams/${stream.id}`}>
             <a className="pt-4 block  px-4">
               <div className="w-full rounded-md shadow-sm bg-slate-300 aspect-video" />
               <h1 className="text-2xl mt-2 font-bold text-gray-900">
@@ -80,7 +75,7 @@ const Streams: NextPage = () => {
               </h1>
             </a>
           </Link>
-        ))} */}
+        ))}
 
         <FloatingButton href="/streams/create">
           <svg 
