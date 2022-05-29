@@ -27,6 +27,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
     }
   });
 
+  console.info('token:: '+token.payload);
+
   if(phone) {
     // const message = await twilioClient.messages.create({
     //   messagingServiceSid: process.env.TWILIO_MESSAGING_SERVICE_SID,
