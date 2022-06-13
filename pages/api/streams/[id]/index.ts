@@ -35,6 +35,12 @@ async function handler(
           }
         }
       });
+
+      const isOwner = stream?.userId === user?.id;
+      if(stream && !isOwner) {
+        stream.plateformKey = '';
+        stream.plateformUrl = '';
+      }
       
       res.json({
         ok: true,
@@ -47,12 +53,12 @@ async function handler(
 
   }
   
-  if(req.method === "POST") {
-    const { 
-      body: { name, price, description, },
-    } = req;
+  // if(req.method === "POST") {
+  //   const { 
+  //     body: { name, price, description, },
+  //   } = req;
 
-  }
+  // }
 }
 
 export default withApiSession(withHandler({

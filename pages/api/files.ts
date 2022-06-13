@@ -21,7 +21,7 @@ async function handler(
       }
     )).json();
 
-    console.log(response);
+    // console.log(response);
 
     res.json({
       ok: true,

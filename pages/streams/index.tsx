@@ -6,6 +6,7 @@ import useSWR from "swr";
 // import useSWRInfinite from "swr/infinite";
 import { Stream } from "@prisma/client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface StreamsResponse {
   ok: boolean;
@@ -69,7 +70,12 @@ const Streams: NextPage = () => {
         {streams.map((stream, i) => (
           <Link key={i} href={`/streams/${stream.id}`}>
             <a className="pt-4 block  px-4">
-              <div className="w-full rounded-md shadow-sm bg-slate-300 aspect-video" />
+              <div className="w-full relative overflow-hidden rounded-md shadow-sm bg-slate-300 aspect-video" >
+              <Image 
+                layout="fill"
+                src={`https://videodelivery.net/${stream.plateformId}/thumbnails/thumbnail.jpg?time=68s&height=270`}
+              />
+              </div>
               <h1 className="text-2xl mt-2 font-bold text-gray-900">
                 {stream.name}
               </h1>

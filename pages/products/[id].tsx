@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import useSWR, { useSWRConfig } from "swr";
 import Button from "@components/button";
+import RandomImage from "../../public/randomImage.png";
+import Image from "next/image";
 
 interface ProductWithUser extends Product {
   user: User;
@@ -30,18 +32,33 @@ const ItemDetail: NextPage = () => {
     boundMutate(prev => {
       return prev && { ...prev, isLiked: !prev.isLiked }
     }, false);
-  }; 
+  };
+  console.log(RandomImage);
   
   return (
     <div className="px-4  py-4">
       <div className="mb-8">
         {data?.product.image ? 
-          <img src={`https://imagedelivery.net/2PnCEE_So2hCDSJbGMbdBw/${data.product.image}/public`} className="h-96"/> :
+          // <div className="h-96 flex items-center justify-center align-middle ">
+          <div className="h-96 relative">
+            <Image 
+              src={`https://imagedelivery.net/2PnCEE_So2hCDSJbGMbdBw/${data.product.image}/public`} 
+              className="h-full object-cover"
+              layout="fill"
+
+            />
+          </div> :
           <div className="h-96 bg-slate-300"/>
         }
+
         <div className="flex cursor-pointer py-3 border-t border-b items-center space-x-3">
           {data?.product.user.avatar ? 
-            <img src={`https://imagedelivery.net/2PnCEE_So2hCDSJbGMbdBw/${data.product.user.avatar}/avatarCrop`} className="w-12 h-12 rounded-full bg-slate-300"/> :
+            <Image
+              width={48}
+              height={48}
+              src={`https://imagedelivery.net/2PnCEE_So2hCDSJbGMbdBw/${data.product.user.avatar}/avatarCrop`} 
+              className="w-12 h-12 rounded-full bg-slate-300"
+            /> :
             <div className="w-12 h-12 rounded-full bg-slate-300"/>
           }
           <div>
