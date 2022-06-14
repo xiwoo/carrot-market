@@ -29,7 +29,7 @@ const Create: NextPage = () => {
 
     console.log(form);
     if(loading) return;
-    // createStream(form);
+    createStream(form);
   };
 
   const onInvalid = (errors: FieldErrors) => {

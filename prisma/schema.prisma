@@ -141,6 +141,9 @@ model Stream {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   messages    Message[]
+  plateformId String
+  plateformUrl String
+  plateformKey String
 }
 
 model Message {

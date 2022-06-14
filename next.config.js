@@ -3,6 +3,13 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     reactRoot: true,
+  },
+  images: {
+    domains: [
+      "imagedelivery.net",
+      "videodelivery.net",
+      "live.cloudflare.com",
+    ],
   }
 }
 
