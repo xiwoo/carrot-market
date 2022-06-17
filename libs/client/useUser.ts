@@ -15,13 +15,13 @@ interface ProfileResponse {
 
 export default function useUser(priv:boolean = true) : ResponseUser {
   const {data, error} = useSWR<ProfileResponse>("/users/me");
-  const router = useRouter();
+  // const router = useRouter();
   
-  useEffect(() => {
-    if(priv && data && !data.ok) {
-      router.replace("/enter");
-    }
-  }, [priv, data, router]);
+  // useEffect(() => {
+  //   if(priv && data && !data.ok) {
+  //     router.replace("/enter");
+  //   }
+  // }, [priv, data, router]);
 
   return {
     user: data?.profile,
