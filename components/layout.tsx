@@ -2,15 +2,17 @@ import React from "react";
 import { cls } from "../libs/client/utils";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Head from "next/head";
 
 interface LayoutProps {
   title?: string;
   canGoBack?: boolean;
   hasTabBar?: boolean;
   children: React.ReactNode;
+  seoTitle: string;
 }
 
-export default function Layout({title, canGoBack, hasTabBar, children}: LayoutProps) {
+export default function Layout({title, canGoBack, hasTabBar, children, seoTitle}: LayoutProps) {
 
   const router = useRouter();
   const onClick = () => {
@@ -19,6 +21,9 @@ export default function Layout({title, canGoBack, hasTabBar, children}: LayoutPr
 
   return (
     <div>
+      <Head>
+        <title>{seoTitle}</title>
+      </Head>
       {/* header */}
       <div className="bg-white w-full h-12 max-w-xl justify-center text-lg px-10 font-medium fixed text-gray-800 border-b top-0 flex items-center">
         {canGoBack ? (

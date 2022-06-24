@@ -12,7 +12,13 @@ console.info("ENV:: "+process.env.NODE_ENV+": "+(process.env.NODE_ENV === "devel
 
 // try {
 
-  const client = global.client || new PrismaClient({ log: ['query', 'error', 'warn', {emit: 'event', level: 'info'}]});
+  const client = global.client || new PrismaClient(
+    { 
+      log: [
+        // 'query', 'error', 'warn', {emit: 'event', level: 'info'}
+      ]
+    }
+  );
   if(process.env.NODE_ENV === "development") {
     global.client = client;
   }
