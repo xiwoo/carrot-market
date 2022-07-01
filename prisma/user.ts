@@ -7,22 +7,6 @@ async function main() {
   console.log("main call:: start seed!");
   return;
   
-  [...Array.from(Array(500).keys())].forEach(async item => {
-    const stream = await client.stream.create({
-      data: {
-        name: String(item),
-        description: String(item),
-        price: item,
-        user: {
-          connect: {
-            id: 1,
-          }
-        }
-      }
-    });
-    
-    console.log(`${item}/500`);
-  });
   
 }
 

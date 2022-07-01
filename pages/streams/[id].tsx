@@ -67,18 +67,8 @@ const Streams: NextPage = () => {
     sendMessage(form);
   };
 
-  // useEffect(
-  //   () => {
-  //     if(sendMessageData && sendMessageData.ok) {
-  //     }
-  //   },
-  //   // [sendMessageData, mutate]
-  // );
-
-  console.log(data);
-
   return (
-    <Layout canGoBack>
+    <Layout canGoBack seoTitle="">
       <div className="py-10 px-4  space-y-4">
 
         {data?.stream.plateformId ? 
@@ -116,6 +106,7 @@ const Streams: NextPage = () => {
           <div className="py-10 pb-16 h-[50vh] overflow-y-scroll  px-4 space-y-4">
             {data?.stream?.messages?.map(message => 
               <Message 
+                key={message.id}
                 message={message.message} 
                 reversed={user?.id === message.user.id}
               />

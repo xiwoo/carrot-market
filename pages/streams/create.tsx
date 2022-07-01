@@ -26,8 +26,6 @@ const Create: NextPage = () => {
   const [ createStream, {loading, data}] = useMutation<CreateResponse>(`/api/streams`);
   
   const onValied = (form:CreateForm) => {
-
-    console.log(form);
     if(loading) return;
     createStream(form);
   };
@@ -35,10 +33,9 @@ const Create: NextPage = () => {
   const onInvalid = (errors: FieldErrors) => {
     console.log("im invalid bby", errors);
   };
-  console.log(errors);
+
   useEffect(
     () => {
-      console.log(data);
       if(data && data.ok) {
         router.push(`/streams/${data.stream.id}`);
       }
@@ -48,7 +45,7 @@ const Create: NextPage = () => {
   );
 
   return (
-    <Layout canGoBack title="Go Live">
+    <Layout canGoBack seoTitle="Go Live">
       <form onSubmit={handleSubmit(onValied, onInvalid)} className=" space-y-4 py-10 px-4">
         <Input 
           required 

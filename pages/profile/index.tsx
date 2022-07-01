@@ -1,15 +1,15 @@
 import useUser from "@libs/client/useUser";
 import { cls } from "@libs/client/utils";
 import { Review, User } from "@prisma/client";
-import type { NextPage } from "next";
+import type { NextPage, NextPageContext } from "next";
 import Link from "next/link";
-import useSWR from "swr";
+import useSWR, { SWRConfig } from "swr";
 import Layout from "@components/layout";
+import { withSsrSession } from "@libs/server/withSession";
 
 interface ReviewWithUser extends Review {
   createdBy: User;
 }
-
 
 interface ReviewsResponse {
   ok: boolean;
@@ -20,6 +20,8 @@ const Profile: NextPage = () => {
   const { user } = useUser();
 
   const { data } = useSWR<ReviewsResponse>('/reviews');
+
+  console.log(data);
   return (
     <Layout hasTabBar seoTitle="나의 캐럿">
       <div className="px-4">
@@ -112,7 +114,7 @@ const Profile: NextPage = () => {
 
               <div className="w-12 h-12 rounded-full bg-slate-500" />
               <div>
-                <h4 className="text-sm font-bold text-gray-800">{review.createdBy.name}</h4>
+                <h4 className="text-sm font-bold text-gray-800">{review.createdBy?.name}</h4>
                 <div className="flex items-center">
                   {[1,2,3,4,5].map(star => (
                     <svg
@@ -139,4 +141,43 @@ const Profile: NextPage = () => {
   );
 };
 
-export default Profile;
+const Page: NextPage<{ profile: User, reviews: ReviewsResponse }> = ({ profile, reviews, }) => {
+
+  return (
+    <SWRConfig
+      value={{
+        fallback: {
+          "/users/me": profile, 
+          "/reviews": {
+            ok: true,
+            reviews
+          }
+        }
+      }}
+    >
+      <Profile />
+    </SWRConfig>
+  )
+}
+
+export const getServerSideProps = withSsrSession( 
+  async ( {req}: NextPageContext ) => {
+    console.log(req?.session.user);
+
+    const profile = await client?.user.findUnique({
+      where: { id: req?.session.user?.id },
+    });
+    const reviews = await client?.review.findMany({
+      where: { createdFroId: req?.session.user?.id },
+    });
+
+    return {
+      props: {
+        profile: JSON.parse(JSON.stringify(profile)),
+        reviews: JSON.parse(JSON.stringify(reviews)),
+      }
+    }
+  }
+);
+
+export default Page;
