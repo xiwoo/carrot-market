@@ -44,9 +44,11 @@ export default function Layout({title, canGoBack, hasTabBar, children, seoTitle}
             </svg>
           </button>
         ) : null}
-        {title ? (
-          <span className={cls(canGoBack ? "mx-auto" : "", "")}>{title}</span>
-        ) : null}
+        {
+          title ? 
+          <span className={cls(canGoBack ? "mx-auto" : "", "")}>{title}</span> :
+          null
+        }
       </div>
       
       {/* body */}

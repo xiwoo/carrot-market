@@ -15,7 +15,7 @@ export function getStaticPaths() {
       const [name, _] = file.split(".");
       return { params: {slug: name} };
     }), 
-    fallback: true,
+    fallback: false,
   }
 }
 
