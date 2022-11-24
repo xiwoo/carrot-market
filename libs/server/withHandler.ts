@@ -13,11 +13,9 @@ interface ConfigType {
   isPrivate?: boolean;
 }
 
-export default function withHandler({
-   methods,
-   handler,
-   isPrivate = true
-}:ConfigType) {
+export default function withHandler(
+  { methods, handler, isPrivate = true } :ConfigType
+) {
 
   return async function(
     req: NextApiRequest, res: NextApiResponse) : Promise<any> 
